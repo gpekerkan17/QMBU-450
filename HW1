@@ -1,0 +1,141 @@
+import time
+print("__"*50)
+class Portfolio(object):
+
+
+    def __init__(self):
+        self.balance = 0
+
+
+    def addCash(self,cash): #Adds cash to the portfolio
+        self.cash = cash
+        print(f"| An amount of ${self.cash} cash is transferred to the portfolio | Local time: {time.ctime()} |")
+        time.sleep(0.1)
+        self.balance += cash
+
+        time.sleep(.1)
+        print(f"| Amount deposited into account: ${self.balance} | Local time: {time.ctime()} |")
+        time.sleep(.1)
+
+
+
+    def buyStock(self, share, stock): #Buys 5 shares of stock s
+        self.share = share
+        self.stock = stock
+
+        print(f"| Stock Purchase: {self.stock.name} | Amount: {self.share} shares | Total Price: ${int(share * stock.price)} | Local time: {time.ctime()}") #stock name does not show
+        time.sleep(.1)
+        self.balance -= share * stock.price
+        print(f"| Current balance: ${self.balance} | Local time: {time.ctime()} |")
+        time.sleep(.1)
+
+
+    def buyMutualFund(self, stock, mf): #Buys 10.3 shares of "BRT" and 2 shares of "GHT"
+        self.stock = stock
+        self.mf = mf
+        print(f"| MF Purchase: {self.mf.stock} | Amount: {self.stock} shares |")
+        time.sleep(.1)
+
+
+    def sellMutualFund(self, stock, share): #Sells 3 share of BRT
+        self.stock = stock
+        self.share = share
+        print(f"| MF Sale: {self.stock} | Amount: {self.share} | Local time: {time.ctime()} |")
+        time.sleep(.1)
+
+
+
+    def sellStock(self, share, cash): #Sells 1 share of HFH
+        self.stock = share
+        self.share = cash
+        print(f"| Stock Sale: {self.stock} | Amount: {self.share} | Local time: {time.ctime()} |")
+        time.sleep(.1)
+
+
+    def withdrawCash(self, cash): # Removes $50
+        self.cash = cash
+        self.balance -= cash
+        print(f"| Amount of ${cash} is withdrawn from account.  | Local time: {time.ctime()} |" )
+        time.sleep(.1)
+        print(f"| Current balance: ||| ${self.balance} |||")
+        time.sleep(.1)
+
+
+    def buyBond(self, amount, name):
+        self.amount = amount
+        self.name = name
+        self.balance -= self.amount
+        if self.balance < 0:
+            print("Not enough money in the Porfolio. Cash deposit needed.")
+        else:
+            print(f"Transaction completed. Bond worth of ${self.amount} acquired")
+            time.sleep(.1)
+
+
+    def addCash(self,cash): #Adds cash to the portfolio
+        self.cash = cash
+        time.sleep(0.1)
+        self.balance += cash
+        print(f"| Amount deposited into account: ${self.cash}                 | Local time: {time.ctime()} |")
+        print(f"| Current balance: ||| ${self.balance} |||")
+        time.sleep(.1)
+
+
+    def buyBond(self, amount, name):
+        self.amount = amount
+        self.name = name
+        self.balance -= amount
+        if self.balance < 0:
+            print("Not enough money in the Porfolio. Cash deposit needed.")
+        else:
+            print(f"| Transaction completed. Bond worth of ${amount} acquired")
+            time.sleep(.1)
+            print(f"| Current balance: ||| ${self.balance} ||| Local time: {time.ctime(0.1)} |")
+            time.sleep(.1)
+
+
+class Stock:
+    def __init__(self, price, name):
+        self.price = price
+        self.name = name
+
+
+
+class MutualFund:
+    def __init__(self, stock):
+        self.stock = stock
+
+
+
+class Bond:
+    def __init__(self, bank):
+        self.bank = bank
+
+
+Y = Portfolio()
+Y.addCash(300.50)
+
+s = Stock(20, "HFH")
+Y.buyStock(5, s)
+
+
+mf1 = MutualFund("BRT")
+mf2 = MutualFund("GHT")
+
+
+Y.buyMutualFund(10.3, mf1)
+Y.buyMutualFund(2, mf2)
+
+
+Y.sellMutualFund("BRT", 3)
+Y.sellStock("HFH", 1)
+
+Y.withdrawCash(50)
+
+b = Bond("XBank")
+Y.buyBond(1000, b)
+
+Y.addCash(5000)
+
+b = Bond("XBank")
+Y.buyBond(2000, b)
