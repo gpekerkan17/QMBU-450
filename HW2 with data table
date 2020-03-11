@@ -1,0 +1,66 @@
+import numpy as np
+import pandas as pd
+import matplotlib.pyplot as plt
+import statsmodels.api as sm
+import math
+
+
+data = pd.read_csv("height_weight.csv")
+#print(data.describe()) #>>> gives values such as mean, std, max, min, percentiles
+
+#Regression data
+
+Height_Bar = data.describe().loc["mean"].loc['Height(Inches)']
+Weight_Bar = data.describe().loc["mean"].loc['Weight(Pounds)']
+n = data.describe().loc["count"].loc['Weight(Pounds)']
+
+h = np.array(data['Height(Inches)']).reshape(200,1) #Gives all values for Height
+w = np.array(data['Weight(Pounds)']).reshape(200,1) #Gives all values for Weight
+
+Height_Sum = data['Height(Inches)'].sum()
+Weight_Sum = data['Weight(Pounds)'].sum()
+
+SSxy = n * sum(h*w) - Height_Sum * Weight_Sum
+SSxx = n * sum(h*h) - Height_Sum * Height_Sum
+
+
+slope = SSxy/SSxx
+y_intersept = Weight_Bar - slope * Height_Bar
+print(f"The slope is: {slope}, whereas the Y-intersept is:{y_intersept}")
+
+
+
+y = data['Weight(Pounds)']
+x1 = data['Height(Inches)']
+
+
+std = np.sum(np.square(y_intersept - w))/((n-2)*np.sum(np.square(h - Height_Bar)))
+stError = math.sqrt(std)
+print(f"The standard error is:{stError}.")
+
+lower = slope - 1.96 * stError
+upper = slope + 1.96 * stError
+ylower = y_intersept - 1.96 * stError
+yupper = y_intersept + 1.96 * stError
+print(f"The credible intervals are as follows:\n>> Lower: {lower}\n>>Upper:{upper}.")
+
+#Data Table
+d = {"Coef":[slope,y_intersept], "Lower":[lower,ylower], "Upper":[upper,yupper]}
+df = pd.DataFrame(d, ["slope","y"])
+print(df)
+
+#------------------------
+x = sm.add_constant(x1)
+results = sm.OLS(y,x).fit()
+#print(results.summary()) to find coefficients
+#------------------------
+
+
+#Regression Graphic
+
+plt.scatter(x1,y)
+yhat = slope*x1 + y_intersept
+fig = plt.plot(x1,yhat, lw=4, c="red", label = "regression line")
+plt.xlabel("Height in inches")
+plt.ylabel("Weigh in pounds")
+plt.show()
