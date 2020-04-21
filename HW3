@@ -55,7 +55,7 @@ data_1 = {                'N': len(countries),
                           'X': data[["gini_net","rgdpl"]],
                           'y': data['church2']}
 
-fit1 = pystan.stan(model_code=turnout_model, data=data_1, iter=1000, chains=2)
+fit1 = pystan.stan(model_code=turnout_model_1, data=data_1, iter=1000, chains=2)
 print(fit1)
 
 
