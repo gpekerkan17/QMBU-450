@@ -1,0 +1,106 @@
+import pystan
+import numpy as np
+import pandas as pd
+import matplotlib.pyplot as plt
+import seaborn as sns
+
+data = pd.read_csv("trend2.csv")
+data.columns = data.columns.map(str.strip)
+data = data.dropna()
+
+
+
+
+countries = data.country.str.strip()
+un_countries = countries.unique()
+countries_dict = dict(zip(un_countries, range(len(un_countries))))
+countries = countries.replace(countries_dict).values
+
+turnout_model_1 = """
+data {
+    int<lower=0> N; //number of observations
+    int<lower=0> J; //number of groups
+    int<lower=0> K;
+    int<lower=1, upper=J> country[N];
+    matrix[N,K] X;
+    vector[N] y;
+}
+parameters {
+    vector[J] a;
+    vector[K] B;
+    real mu_a;
+
+    real<lower=0,upper=100> sigma_a;
+    real<lower=0,upper=100> sigma_y;
+}
+transformed parameters {
+    vector[N] y_hat;
+    for(i in 1:N)
+        y_hat[i] = a[country[i]] + X[i] * B;
+}
+
+model{
+    sigma_a ~ uniform(0,100);
+    sigma_y ~ uniform(0,100);
+    a ~ normal(mu_a, sigma_a);
+    B ~ normal(0,10);
+
+    y ~ normal(y_hat, sigma_y);
+}
+"""
+data_1 = {                'N': len(countries),
+                          'J': len(un_countries),
+                          'country': countries + 1,
+                          'K': 2,
+                          'X': data[["gini_net","rgdpl"]],
+                          'y': data['church2']}
+
+fit1 = pystan.stan(model_code=turnout_model, data=data_1, iter=1000, chains=2)
+print(fit1)
+
+
+print(50 * '--')
+
+
+turnout_model_2 = """
+data {
+    int<lower=0> N; //number of observations
+    int<lower=0> J; //number of groups
+    int<lower=0> K;
+    int<lower=1, upper=J> country[N];
+    matrix[N,K] X;
+    vector[N] y;
+}
+parameters {
+    vector[J] a;
+    vector[K] B;
+    real mu_a;
+
+    real<lower=0,upper=100> sigma_a;
+    real<lower=0,upper=100> sigma_y;
+}
+transformed parameters {
+    vector[N] y_hat;
+    for(i in 1:N)
+        y_hat[i] = a[country[i]] + X[i] * B;
+}
+
+model{
+    sigma_a ~ uniform(0,100);
+    sigma_y ~ uniform(0,100);
+    a ~ normal(mu_a, sigma_a);
+    B ~ normal(0,2);
+
+    y ~ normal(y_hat, sigma_y);
+}
+"""
+
+data_2 = {                'N': len(countries),
+                          'J': len(un_countries),
+                          'country': countries + 1,
+                          'K': 2,
+                          'X': data[["gini_net","rgdpl"]],
+                          'y': data['church2']}
+
+fit2 = pystan.stan(model_code=turnout_model_2, data=data_2, iter=1000, chains=2)
+print(fit2)
