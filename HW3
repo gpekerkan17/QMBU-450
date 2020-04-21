@@ -102,5 +102,10 @@ data_2 = {                'N': len(countries),
                           'X': data[["gini_net","rgdpl"]],
                           'y': data['church2']}
 
+
 fit2 = pystan.stan(model_code=turnout_model_2, data=data_2, iter=1000, chains=2)
 print(fit2)
+
+"""-------------------------------------------------------------------------------""""
+#There seems to be a slight difference between the two models
+
