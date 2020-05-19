@@ -1,0 +1,67 @@
+import numpy as np
+import pandas as pd
+from sklearn.model_selection import train_test_split
+from sklearn.feature_extraction.text import CountVectorizer
+from sklearn.feature_extraction.text import TfidfVectorizer
+from sklearn.gaussian_process import GaussianProcessRegressor
+from sklearn.gaussian_process.kernels import ConstantKernel, RBF
+tt = pd.read_csv('immSurvey.csv')
+tt.head()
+
+alphas = tt.stanMeansNewSysPooled
+sample = tt.textToSend
+
+
+vec = CountVectorizer()
+X = vec.fit_transform(sample)
+X
+
+pd.DataFrame(X.toarray(), columns=vec.get_feature_names())
+
+#down-weighting frequent words; term frequency–inverse document frequency (TF–IDF), which weights the word counts by a measure of how often they appear in the documents
+
+vec = TfidfVectorizer()
+X = vec.fit_transform(sample)
+pd.DataFrame(X.toarray(), columns=vec.get_feature_names())
+
+
+Xtrain, Xtest, ytrain, ytest = train_test_split(X, alphas,
+random_state=1)
+
+rbf = ConstantKernel(1.0) * RBF(length_scale=1.0)
+gpr = GaussianProcessRegressor(kernel=rbf, alpha=1e-8)
+
+gpr.fit(Xtrain.toarray(), ytrain)
+
+# Compute posterior predictive mean and covariance
+mu_s, cov_s = gpr.predict(Xtest.toarray(), return_cov=True)
+
+#test correlation between test and mus
+np.corrcoef(ytest, mu_s)
+
+#how might we improve this?
+
+"""-----------------------------------------------------------"""
+#here is the bigram model
+
+bigram_vectorizer = CountVectorizer(ngram_range=(2, 2),
+token_pattern=r'\b\w+\b', min_df=1)
+
+X_2 = bigram_vectorizer.fit_transform(sample).toarray()
+X_2
+
+pd.DataFrame(X_2, columns=bigram_vectorizer.get_feature_names()).head()
+
+X_2train, X_2test, ytrain, ytest = train_test_split(X_2, alphas,
+random_state=1)
+
+rbf = ConstantKernel(1.0) * RBF(length_scale=1.0)
+gpr = GaussianProcessRegressor(kernel=rbf, alpha=1e-8)
+
+gpr.fit(X_2train, ytrain)
+
+mu_s, cov_s = gpr.predict(X_2test, return_cov=True)
+
+np.corrcoef(ytest, mu_s)
+
+"""Voila"""
